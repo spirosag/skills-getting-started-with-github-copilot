@@ -21,6 +21,42 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
 
 # In-memory activity database
 activities = {
+    "Basketball Team": {
+        "description": "Join the varsity and JV basketball teams for competitive play",
+        "schedule": "Mondays, Wednesdays, Fridays, 4:00 PM - 5:30 PM",
+        "max_participants": 15,
+        "participants": ["alex@mergington.edu"]
+        },
+        "Volleyball Club": {
+        "description": "Learn volleyball skills and compete in tournaments",
+        "schedule": "Tuesdays and Thursdays, 4:00 PM - 5:30 PM",
+        "max_participants": 18,
+        "participants": ["jordan@mergington.edu"]
+        },
+        "Drama Club": {
+        "description": "Perform in school plays and theatrical productions",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 25,
+        "participants": ["marcus@mergington.edu", "isabella@mergington.edu"]
+        },
+        "Art Studio": {
+        "description": "Explore painting, drawing, and sculpture techniques",
+        "schedule": "Mondays and Thursdays, 3:30 PM - 4:45 PM",
+        "max_participants": 16,
+        "participants": ["grace@mergington.edu"]
+        },
+        "Debate Team": {
+        "description": "Develop argumentation skills and compete in debates",
+        "schedule": "Tuesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": ["ryan@mergington.edu", "sophia@mergington.edu"]
+        },
+        "Science Club": {
+        "description": "Conduct experiments and explore advanced scientific concepts",
+        "schedule": "Fridays, 3:30 PM - 4:45 PM",
+        "max_participants": 15,
+        "participants": ["ava@mergington.edu"]
+        },
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
         "schedule": "Fridays, 3:30 PM - 5:00 PM",
@@ -63,5 +99,26 @@ def signup_for_activity(activity_name: str, email: str):
     activity = activities[activity_name]
 
     # Add student
+    # Validate student is not already signed up
+    if email in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student already signed up for this activity")
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.post("/activities/{activity_name}/unregister")
+def unregister_from_activity(activity_name: str, email: str):
+    """Unregister a student from an activity"""
+    # Validate activity exists
+    if activity_name not in activities:
+        raise HTTPException(status_code=404, detail="Activity not found")
+
+    # Get the specific activity
+    activity = activities[activity_name]
+
+    # Remove student
+    # Validate student is signed up
+    if email not in activity["participants"]:
+        raise HTTPException(status_code=400, detail="Student not signed up for this activity")
+    activity["participants"].remove(email)
+    return {"message": f"Unregistered {email} from {activity_name}"}
